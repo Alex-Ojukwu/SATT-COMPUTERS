@@ -88,6 +88,9 @@ html{
 }
 body{
   margin: 0;
+  /* Safety net against horizontal scroll on mobile. `clip`, not `hidden`:
+     hidden turns body into a scroll container, which breaks the sticky header. */
+  overflow-x: clip;
   font-family: var(--font-body);
   color: var(--ink);
   background: var(--bg);
@@ -304,6 +307,8 @@ section{ position: relative; }
   font-family: var(--font-head);
   font-weight: 600;
   font-size: .92rem;
+  min-height: 44px;
+  padding-inline: var(--sp-2);
 }
 .header-call svg{ width: 18px; height: 18px; color: var(--orange-500); }
 @media (min-width: 640px){ .header-call{ display: inline-flex; } }
@@ -548,8 +553,10 @@ section{ position: relative; }
 }
 @media (min-width: 900px){
   .services-layout{ grid-template-columns: .8fr 1.2fr; gap: var(--sp-8); align-items: start; }
+  /* Sticky only makes sense once the aside sits beside a taller column;
+     on the single-column mobile stack it would overlap the list below it. */
+  .services-aside{ position: sticky; top: 96px; }
 }
-.services-aside{ position: sticky; top: 96px; }
 .services-aside .chips{
   display: flex; flex-wrap: wrap; gap: var(--sp-2);
   margin-top: var(--sp-6);
@@ -734,6 +741,14 @@ section{ position: relative; }
   font-size: 1.3rem; color: var(--blue-700);
 }
 .about-stats div span{ font-size: .85rem; color: var(--ink-soft); }
+/* Three narrow columns force "MacBook & Windows" onto three lines on phones;
+   stack as label rows instead. */
+@media (max-width: 560px){
+  .about-stats{ grid-template-columns: 1fr; gap: var(--sp-4); }
+  .about-stats div{ display: flex; align-items: baseline; justify-content: space-between; gap: var(--sp-4); }
+  .about-stats div strong{ font-size: 1.1rem; }
+  .about-stats div span{ text-align: right; }
+}
 
 /* ==========================================================================
    Contact
@@ -765,12 +780,17 @@ section{ position: relative; }
 .contact-card .c-value{ color: var(--white); font-weight: 600; margin-top: var(--sp-3); font-size: 1rem; }
 .contact-card a.c-link{
   display: inline-flex; align-items: center; gap: var(--sp-2);
-  margin-top: var(--sp-4); font-size: .88rem; font-weight: 600; color: var(--orange-500);
+  margin: var(--sp-2) calc(var(--sp-2) * -1) calc(var(--sp-3) * -1);
+  padding: var(--sp-2);
+  min-height: 44px;
+  font-size: .88rem; font-weight: 600; color: var(--orange-500);
 }
 .contact-card a.c-link svg{ width: 16px; height: 16px; transition: transform var(--dur-fast) var(--ease-out); }
 .contact-card a.c-link:hover svg{ transform: translateX(3px); }
 
 .map-frame{
+  width: 100%;
+  max-width: 100%;
   margin-top: var(--sp-7);
   border-radius: var(--r-lg);
   overflow: hidden;
@@ -819,7 +839,11 @@ section{ position: relative; }
   .footer-top{ grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 560px){
-  .footer-top{ grid-template-columns: 1fr; }
+  /* Explore + Services sit side by side; brand and contact span full width */
+  .footer-top{ grid-template-columns: 1fr 1fr; gap: var(--sp-6) var(--sp-5); }
+  .footer-brand, .footer-col:last-child{ grid-column: 1 / -1; }
+  /* keep the last footer line clear of the floating WhatsApp button */
+  .site-footer{ padding-bottom: calc(var(--sp-6) + 72px); }
 }
 .footer-brand .brand{ margin-bottom: var(--sp-4); }
 .footer-brand p{ max-width: 34ch; font-size: .92rem; }
@@ -830,7 +854,13 @@ section{ position: relative; }
   font-weight: 600;
   margin-bottom: var(--sp-4);
 }
-.footer-col li{ margin-bottom: var(--sp-3); font-size: .92rem; }
+.footer-col li{ font-size: .92rem; }
+.footer-col a{
+  display: inline-block;
+  padding-block: var(--sp-2);
+  min-height: 44px;
+  line-height: 28px;
+}
 .footer-col a:hover{ color: var(--white); }
 .footer-social{ display: flex; gap: var(--sp-3); margin-top: var(--sp-5); }
 .footer-social a{
